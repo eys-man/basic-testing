@@ -12,6 +12,13 @@ describe('resolveValue', () => {
     const value = 'resolved value';
     await expect(resolveValue(value)).resolves.toBe(value);
   });
+
+  // вариант 2, также рабочий
+  test('should resolve provided value', async () => {
+    const value = 'resolved value';
+    const data = await resolveValue(value);
+    expect(data).toBe(value);
+  });
 });
 
 describe('throwError', () => {
@@ -39,5 +46,14 @@ describe('throwCustomError', () => {
 describe('rejectCustomError', () => {
   test('should reject custom error', async () => {
     await expect(rejectCustomError()).rejects.toThrow(new MyAwesomeError());
+  });
+
+  // вариант 2, также рабочий
+  test('should reject custom error', async () => {
+    try {
+      await rejectCustomError();
+    } catch (error) {
+      expect(error).toStrictEqual(new MyAwesomeError());
+    }
   });
 });
