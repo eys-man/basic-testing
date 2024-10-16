@@ -8,93 +8,91 @@ import {
 describe('BankAccount', () => {
   const initBalance = 1000;
   const minDotation = 20;
-  const myAcc = getBankAccount(initBalance);
-  const recipientAcc = getBankAccount(initBalance);
 
   test('should create account with initial balance', () => {
-    const newAcc = getBankAccount(initBalance);
-    expect(newAcc.getBalance()).toBe(initBalance);
+    const myAcc = getBankAccount(initBalance);
+    expect(myAcc.getBalance()).toBe(initBalance);
   });
 
   test('should throw InsufficientFundsError error when withdrawing more than balance', () => {
-    const megaWithdraw = myAcc.getBalance() * 2;
-    expect(() => myAcc.withdraw(megaWithdraw)).toThrow(
+    const myAcc = getBankAccount(initBalance);
+    expect(() => myAcc.withdraw(initBalance + 1)).toThrow(
       new InsufficientFundsError(myAcc.getBalance()),
     );
   });
 
   test('should throw error when transferring more than balance', () => {
-    const megaTransfer = myAcc.getBalance() * 2;
-    expect(() => myAcc.transfer(megaTransfer, recipientAcc)).toThrow(
+    const myAcc = getBankAccount(initBalance);
+    const recipientAcc = getBankAccount(initBalance);
+
+    expect(() => myAcc.transfer(initBalance + 1, recipientAcc)).toThrow(
       new InsufficientFundsError(myAcc.getBalance()),
     );
   });
 
   test('should throw error when transferring to the same account', () => {
-    const someMoney = myAcc.getBalance();
-    expect(() => myAcc.transfer(someMoney, myAcc)).toThrow(
+    const myAcc = getBankAccount(initBalance);
+
+    expect(() => myAcc.transfer(minDotation, myAcc)).toThrow(
       new TransferFailedError(),
     );
   });
 
   test('should deposit money', () => {
-    const startBalance = myAcc.getBalance();
+    const myAcc = getBankAccount(initBalance);
+
     expect(myAcc.deposit(minDotation).getBalance()).toBe(
-      startBalance + minDotation,
+      initBalance + minDotation,
     );
   });
 
   test('should withdraw money', () => {
-    try {
-      myAcc.withdraw(minDotation);
-    } catch (err) {
-      expect(err).toBe(new InsufficientFundsError(myAcc.getBalance()));
-    }
-  });
+    const myAcc = getBankAccount(initBalance);
 
-  test('should transfer money', () => {
-    // делаем так, чтоб точно были деньги для снятия: сначала добавим деньги, потом их и снимем
-    // console.log(
-    //   `myAcc balanse = ${myAcc.getBalance()}, recepientAcc balance = ${recipientAcc.getBalance()}`,
-    // );
-
-    myAcc.deposit(minDotation);
-
-    const startBalanceOfRecepientAcc = recipientAcc.getBalance();
-
-    myAcc.transfer(minDotation, recipientAcc);
-
-    // console.log(
-    //   `myAcc balanse = ${myAcc.getBalance()}, recepientAcc balance = ${recipientAcc.getBalance()}`,
-    // );
-
-    expect(recipientAcc.getBalance()).toBe(
-      startBalanceOfRecepientAcc + minDotation,
+    expect(myAcc.withdraw(minDotation).getBalance()).toBe(
+      initBalance - minDotation,
     );
   });
 
+  test('should transfer money', () => {
+    const myAcc = getBankAccount(initBalance);
+    const recipientAcc = getBankAccount(initBalance);
+
+    myAcc.transfer(minDotation, recipientAcc);
+
+    expect(recipientAcc.getBalance()).toBe(initBalance + minDotation);
+    expect(myAcc.getBalance()).toBe(initBalance - minDotation);
+  });
+
   test('fetchBalance should return number in case if request did not failed', async () => {
+    const myAcc = getBankAccount(initBalance);
     const data = await myAcc.fetchBalance();
+    console.log(
+      `fetchBalance should return number in case if request did not failed. data = ${data}`,
+    );
     if (typeof data === `number`) expect(data).not.toBeNull();
   });
 
   test('should set new balance if fetchBalance returned number', async () => {
+    const myAcc = getBankAccount(initBalance);
     const data = await myAcc.fetchBalance();
-    // console.log(`data is ${data}\n`);
-    if (typeof data === `number`) {
-      // console.log(`start balance is ${myAcc.getBalance()}\n`);
-      const startBalance = myAcc.getBalance();
-      const newBalance = startBalance + data;
-      myAcc.deposit(data);
-      expect(myAcc.getBalance()).toBe(newBalance);
-      // console.log(`new balance is ${myAcc.getBalance()}\n`);
-    }
+    console.log(
+      `should set new balance if fetchBalance returned number. data = ${data}`,
+    );
+    if (typeof data === `number`)
+      expect(myAcc.withdraw(initBalance).deposit(data).getBalance()).toBe(data);
   });
 
   test('should throw SynchronizationFailedError if fetchBalance returned null', async () => {
+    const myAcc = getBankAccount(initBalance);
+    console.log(
+      `should throw SynchronizationFailedError if fetchBalance returned null`,
+    );
     try {
       await myAcc.synchronizeBalance();
+      console.log(`balance = ${myAcc.getBalance()}`);
     } catch (err) {
+      console.log(`SynchronizationFailedError`);
       expect(err).toStrictEqual(new SynchronizationFailedError());
     }
   });
