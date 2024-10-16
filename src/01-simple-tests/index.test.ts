@@ -1,5 +1,3 @@
-// Uncomment the code below and write your tests
-// import { simpleCalculator } from './index';
 import { simpleCalculator, Action } from './index';
 
 describe('simpleCalculator tests', () => {
