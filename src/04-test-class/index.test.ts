@@ -64,35 +64,72 @@ describe('BankAccount', () => {
     expect(myAcc.getBalance()).toBe(initBalance - minDotation);
   });
 
+  // test('fetchBalance should return number in case if request did not failed', async () => {
+  //   const myAcc = getBankAccount(initBalance);
+  //   const data = await myAcc.fetchBalance();
+  //   if (typeof data === `number`) expect(data).not.toBeNull();
+  // });
+
   test('fetchBalance should return number in case if request did not failed', async () => {
     const myAcc = getBankAccount(initBalance);
-    const data = await myAcc.fetchBalance();
-    console.log(
-      `fetchBalance should return number in case if request did not failed. data = ${data}`,
-    );
-    if (typeof data === `number`) expect(data).not.toBeNull();
+
+    // повторяем цикл, пока ответ не станет числом, здесь же надо без моков
+    let returnedRequest: number | null;
+    do {
+      returnedRequest = await myAcc.fetchBalance();
+      // console.log(`returnedRequest = ${returnedRequest}`);
+    } while (!typeof returnedRequest);
+
+    // console.log(`ура ответ fetchBalance - число ${returnedRequest}`);
+    expect(typeof returnedRequest).not.toBeNull();
   });
+
+  // test('should set new balance if fetchBalance returned number', async () => {
+  //   const myAcc = getBankAccount(initBalance);
+  //   const data = await myAcc.fetchBalance();
+
+  //   if (typeof data === `number`)
+  //     expect(myAcc.withdraw(initBalance).deposit(data).getBalance()).toBe(data);
+  // });
 
   test('should set new balance if fetchBalance returned number', async () => {
     const myAcc = getBankAccount(initBalance);
-    const data = await myAcc.fetchBalance();
-    console.log(
-      `should set new balance if fetchBalance returned number. data = ${data}`,
-    );
-    if (typeof data === `number`)
-      expect(myAcc.withdraw(initBalance).deposit(data).getBalance()).toBe(data);
+
+    // повторяем цикл, пока ответ не станет числом, здесь же надо без моков
+    let returnedRequest: number | null;
+    do {
+      returnedRequest = await myAcc.fetchBalance();
+      // console.log(`returnedRequest = ${returnedRequest}`);
+    } while (typeof returnedRequest !== `number`);
+
+    expect(
+      myAcc.withdraw(initBalance).deposit(Number(returnedRequest)).getBalance(),
+    ).toBe(returnedRequest);
+    // можно это делать и через synchronizeBalance
   });
+
+  // test('should throw SynchronizationFailedError if fetchBalance returned null', async () => {
+  //   const myAcc = getBankAccount(initBalance);
+  //   try {
+  //     await myAcc.synchronizeBalance();
+  //     // console.log(`balance = ${myAcc.getBalance()}`);
+  //   } catch (err) {
+  //     // console.log(`SynchronizationFailedError`);
+  //     expect(err).toStrictEqual(new SynchronizationFailedError());
+  //   }
+  // });
 
   test('should throw SynchronizationFailedError if fetchBalance returned null', async () => {
     const myAcc = getBankAccount(initBalance);
-    console.log(
-      `should throw SynchronizationFailedError if fetchBalance returned null`,
-    );
+
     try {
-      await myAcc.synchronizeBalance();
-      console.log(`balance = ${myAcc.getBalance()}`);
+      while (true) {
+        // повторяем цикл, пока не выбросит ошибку. это задание же без моков
+        await myAcc.synchronizeBalance();
+        // console.log(`ошибку пока не выдало, balance = ${myAcc.getBalance()}`);
+      }
     } catch (err) {
-      console.log(`SynchronizationFailedError`);
+      // console.log(`SynchronizationFailedError`);
       expect(err).toStrictEqual(new SynchronizationFailedError());
     }
   });
