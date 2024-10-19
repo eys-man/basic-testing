@@ -6,12 +6,10 @@ jest.mock('./index', () => {
 
   return {
     __esModule: true,
-    // ...originalModule,
+    ...originalModule,
     mockOne: jest.fn(),
     mockTwo: jest.fn(),
     mockThree: jest.fn(),
-    default: jest.fn(() => null),
-    foo: 'mocked foo',
   };
 });
 
@@ -21,11 +19,23 @@ describe('partial mocking', () => {
   });
 
   test('mockOne, mockTwo, mockThree should not log into console', () => {
-    // отследить console.log
-    // Write your test here
+    jest.spyOn(console, 'log').mockImplementation(() => null);
+
+    mockOne();
+    mockTwo();
+    mockThree();
+
+    expect(mockOne).toHaveBeenCalled();
+    expect(mockTwo).toHaveBeenCalled();
+    expect(mockThree).toHaveBeenCalled();
+    expect(console.log).not.toHaveBeenCalled();
   });
 
   test('unmockedFunction should log into console', () => {
-    // Write your test here
+    jest.spyOn(console, 'log').mockImplementation(() => null);
+
+    unmockedFunction();
+
+    expect(console.log).toHaveBeenCalledWith('I am not mocked');
   });
 });

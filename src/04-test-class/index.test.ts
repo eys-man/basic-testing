@@ -1,3 +1,4 @@
+import lodash from 'lodash';
 import {
   getBankAccount,
   InsufficientFundsError,
@@ -64,73 +65,49 @@ describe('BankAccount', () => {
     expect(myAcc.getBalance()).toBe(initBalance - minDotation);
   });
 
-  // test('fetchBalance should return number in case if request did not failed', async () => {
-  //   const myAcc = getBankAccount(initBalance);
-  //   const data = await myAcc.fetchBalance();
-  //   if (typeof data === `number`) expect(data).not.toBeNull();
-  // });
-
   test('fetchBalance should return number in case if request did not failed', async () => {
     const myAcc = getBankAccount(initBalance);
 
-    // повторяем цикл, пока ответ не станет числом, здесь же надо без моков
-    let returnedRequest: number | null;
-    do {
-      returnedRequest = await myAcc.fetchBalance();
-      // console.log(`returnedRequest = ${returnedRequest}`);
-    } while (!typeof returnedRequest);
+    const randomMock = jest.spyOn(lodash, 'random');
+    randomMock.mockReturnValueOnce(100).mockReturnValueOnce(1); // requestFailed при этом false (при этом fetchBalance возвращает число)
 
-    // console.log(`ура ответ fetchBalance - число ${returnedRequest}`);
-    expect(typeof returnedRequest).not.toBeNull();
+    const returnedRequest = await myAcc.fetchBalance();
+    // console.log(`returnedRequest ${returnedRequest}`);
+
+    expect(returnedRequest).not.toBeNull();
+    expect(typeof returnedRequest).toBe(`number`);
   });
-
-  // test('should set new balance if fetchBalance returned number', async () => {
-  //   const myAcc = getBankAccount(initBalance);
-  //   const data = await myAcc.fetchBalance();
-
-  //   if (typeof data === `number`)
-  //     expect(myAcc.withdraw(initBalance).deposit(data).getBalance()).toBe(data);
-  // });
 
   test('should set new balance if fetchBalance returned number', async () => {
     const myAcc = getBankAccount(initBalance);
+    const fetchBalanceMock = jest.spyOn(myAcc, 'fetchBalance');
+    fetchBalanceMock.mockResolvedValue(100);
 
-    // повторяем цикл, пока ответ не станет числом, здесь же надо без моков
-    let returnedRequest: number | null;
-    do {
-      returnedRequest = await myAcc.fetchBalance();
-      // console.log(`returnedRequest = ${returnedRequest}`);
-    } while (typeof returnedRequest !== `number`);
-
+    const returnedRequest = await myAcc.fetchBalance();
+    // console.log(`returnedRequest ${returnedRequest}`);
     expect(
       myAcc.withdraw(initBalance).deposit(Number(returnedRequest)).getBalance(),
-    ).toBe(returnedRequest);
-    // можно это делать и через synchronizeBalance
-  });
+    ).toBe(100);
 
-  // test('should throw SynchronizationFailedError if fetchBalance returned null', async () => {
-  //   const myAcc = getBankAccount(initBalance);
-  //   try {
-  //     await myAcc.synchronizeBalance();
-  //     // console.log(`balance = ${myAcc.getBalance()}`);
-  //   } catch (err) {
-  //     // console.log(`SynchronizationFailedError`);
-  //     expect(err).toStrictEqual(new SynchronizationFailedError());
-  //   }
-  // });
+    // можно это делать и через synchronizeBalance
+    await myAcc.synchronizeBalance();
+    expect(myAcc.getBalance()).toBe(100);
+
+    // fetchBalanceMock.mockRestore();
+  });
 
   test('should throw SynchronizationFailedError if fetchBalance returned null', async () => {
     const myAcc = getBankAccount(initBalance);
+    // замокать fetchBalance, чтоб возвращала null
+    const fetchBalanceMock = jest.spyOn(myAcc, 'fetchBalance');
+    fetchBalanceMock.mockResolvedValue(null);
 
     try {
-      while (true) {
-        // повторяем цикл, пока не выбросит ошибку. это задание же без моков
-        await myAcc.synchronizeBalance();
-        // console.log(`ошибку пока не выдало, balance = ${myAcc.getBalance()}`);
-      }
+      await myAcc.synchronizeBalance();
     } catch (err) {
-      // console.log(`SynchronizationFailedError`);
       expect(err).toStrictEqual(new SynchronizationFailedError());
     }
+
+    // fetchBalanceMock.mockRestore();
   });
 });
