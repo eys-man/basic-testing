@@ -31,9 +31,9 @@ describe(`calculator`, () => {
   );
 });
 
-// вариант 2
-describe.each(testCases)(`simpleCalculator`, ({ a, b, action, expected }) => {
-  test(`perform ${action} with ${a} and ${b} and result should be ${expected}`, () => {
-    expect(simpleCalculator({ a, b, action })).toBe(expected);
-  });
-});
+// вариант 2, тоже рабочий
+// describe.each(testCases)(`simpleCalculator`, ({ a, b, action, expected }) => {
+//   test(`perform ${action} with ${a} and ${b} and result should be ${expected}`, () => {
+//     expect(simpleCalculator({ a, b, action })).toBe(expected);
+//   });
+// });

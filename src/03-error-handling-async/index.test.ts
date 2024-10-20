@@ -14,11 +14,11 @@ describe('resolveValue', () => {
   });
 
   // вариант 2, также рабочий
-  test('should resolve provided value', async () => {
-    const value = 'resolved value';
-    const data = await resolveValue(value);
-    expect(data).toBe(value);
-  });
+  // test('should resolve provided value', async () => {
+  //   const value = 'resolved value';
+  //   const data = await resolveValue(value);
+  //   expect(data).toBe(value);
+  // });
 });
 
 describe('throwError', () => {
@@ -27,10 +27,10 @@ describe('throwError', () => {
     expect(() => throwError(err)).toThrow(new Error(err));
   });
 
-  test('should throw error with provided message', () => {
-    const err = 'Awesome error!';
-    expect(() => throwError(err)).toThrow(err);
-  });
+  // test('should throw error with provided message', () => {
+  //   const err = 'Awesome error!';
+  //   expect(() => throwError(err)).toThrow(err);
+  // });
 
   test('should throw error with default message if message is not provided', () => {
     expect(throwError).toThrow('Oops!');
@@ -49,11 +49,11 @@ describe('rejectCustomError', () => {
   });
 
   // вариант 2, также рабочий
-  test('should reject custom error', async () => {
-    try {
-      await rejectCustomError();
-    } catch (error) {
-      expect(error).toStrictEqual(new MyAwesomeError());
-    }
-  });
+  // test('should reject custom error', async () => {
+  //   try {
+  //     await rejectCustomError();
+  //   } catch (error) {
+  //     expect(error).toStrictEqual(new MyAwesomeError());
+  //   }
+  // });
 });
